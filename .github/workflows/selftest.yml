@@ -1,0 +1,38 @@
+name: selftest
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  selftest:
+    name: regression self-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run regression self-test (two known devices)
+        run: python e6_keygen.py --selftest
+
+      - name: Machine-code input path
+        run: |
+          python e6_keygen.py --mc 4653170
+          python e6_keygen.py --mc "K 4653170"
+          python e6_keygen.py --mc 0x470072
+
+      - name: UID input path (word order auto-detection)
+        run: |
+          python e6_keygen.py --uid 53483643 53303606 003F0037
+          python e6_keygen.py --uid "ID:53483643 53303606 003F0037A"
+          python e6_keygen.py --uid 003F0037 53303606 53483643
+
+      - name: Batch mode
+        run: python e6_keygen.py --file examples/devices.txt

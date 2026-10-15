@@ -1,3 +1,5 @@
+<a id="top"></a>
+
 <p align="center">
   <img src="https://img.shields.io/badge/E6-RegKey%20Calculator-blue?style=flat-square" alt="E6 RegKey Calculator"/>
 </p>
@@ -11,6 +13,7 @@
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square" alt="platform">
   <img src="https://img.shields.io/badge/release-v1.0.0-orange?style=flat-square" alt="release v1.0.0">
   <img src="https://img.shields.io/badge/use-research%20%2F%20education%20only-red?style=flat-square" alt="research / education only">
+  <a href=".github/workflows/selftest.yml"><img src="https://github.com/<your-name>/E6-RegKey-Calculator/actions/workflows/selftest.yml/badge.svg" alt="selftest CI"></a>
 </p>
 
 <p align="center">
