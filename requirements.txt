@@ -1,0 +1,6 @@
+# 核心功能零依赖 — 纯标准库, Python 3.6+
+# The core tool has NO required dependencies (stdlib only, Python 3.6+).
+#
+# 可选: 仅当你使用 --firmware 参数做真实固件仿真交叉验证时才需要:
+# Optional: only needed for the --firmware Unicorn cross-check.
+unicorn>=2.0.0
