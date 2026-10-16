@@ -30,4 +30,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Algorithm verified by dual channel (instruction-level emulation + pure formula)
   on two known devices; full regression available via `--selftest`
 
-[1.0.0]: https://github.com/<your-name>/E6-RegKey-Calculator/releases/tag/v1.0.0
+[1.0.0]: https://github.com/bolo-ux/E6-RegKey-Calculator/releases/tag/v1.0.0

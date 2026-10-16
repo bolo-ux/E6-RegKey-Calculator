@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square" alt="platform">
   <img src="https://img.shields.io/badge/release-v1.0.0-orange?style=flat-square" alt="release v1.0.0">
   <img src="https://img.shields.io/badge/use-research%20%2F%20education%20only-red?style=flat-square" alt="research / education only">
-  <a href=".github/workflows/selftest.yml"><img src="https://github.com/<your-name>/E6-RegKey-Calculator/actions/workflows/selftest.yml/badge.svg" alt="selftest CI"></a>
+  <a href=".github/workflows/selftest.yml"><img src="https://github.com/bolo-ux/E6-RegKey-Calculator/actions/workflows/selftest.yml/badge.svg" alt="selftest CI"></a>
 </p>
 
 <p align="center">
@@ -106,7 +106,7 @@
 **环境要求：** Python 3.6+（核心功能无任何第三方依赖）
 
 ```bash
-git clone https://github.com/<your-name>/E6-RegKey-Calculator.git
+git clone https://github.com/bolo-ux/E6-RegKey-Calculator.git
 cd E6-RegKey-Calculator
 
 # 跑回归自检，确认一切正常
