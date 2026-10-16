@@ -23,7 +23,7 @@
 
 ## 三、无关联声明
 
-本项目作者与"中鸣"（Zhongming）品牌及其关联公司、任何硬件制造商、销售商
+本项目作者与任何设备厂商及其关联公司、制造商、销售商
 **不存在任何关联、雇佣、赞助或背书关系**。本项目未获得上述任何主体的授权。
 文中出现的产品名称、商标，仅用于技术兼容性说明，其权利归各自所有者。
 
@@ -58,7 +58,7 @@ algorithm description and an original proof-of-concept implementation.
 - **Use only on devices you own** or are explicitly authorized to modify.
 - **Comply with all applicable laws** in your jurisdiction. Do not use this project where
   such analysis is prohibited.
-- **No affiliation** with Zhongming Robotics or any manufacturer; not endorsed by them.
+- **No affiliation** with any device manufacturer; not endorsed by anyone.
 - Provided **"AS IS", without warranty of any kind**. The authors accept **no liability**
   for any consequence of use.
 - The MIT license covers **only the original code in this repository** — no vendor

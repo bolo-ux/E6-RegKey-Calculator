@@ -4,8 +4,8 @@
   <img src="https://img.shields.io/badge/E6-RegKey%20Calculator-blue?style=flat-square" alt="E6 RegKey Calculator"/>
 </p>
 
-<h1 align="center">中鸣 E6 控制器注册码计算器</h1>
-<p align="center"><em>Zhongming E6 Controller Registration Key Calculator — a reverse-engineering research artifact</em></p>
+<h1 align="center">E6 控制器注册码计算器</h1>
+<p align="center"><em>E6 Controller Registration Key Calculator — a reverse-engineering research artifact</em></p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="license MIT"></a>
@@ -37,7 +37,7 @@
 > [!IMPORTANT]
 > **本项目仅用于安全研究与技术学习**，展示对 STM32 UID 绑定注册校验算法的逆向分析结论。
 > **请仅在您拥有合法所有权的设备上使用**，并遵守所在地区法律法规。
-> 本项目与中鸣（Zhongming）公司及任何硬件厂商**无任何关联**。
+> 本项目与任何硬件厂商均**无任何关联**。
 > **使用即视为您已阅读并同意 [DISCLAIMER.md](DISCLAIMER.md) 的全部条款。**
 
 ---
@@ -214,7 +214,7 @@ This project is intended **solely for lawful security research, education, and i
 
 **Unauthorized access, circumvention of licensing, disruption, or any other use against devices you do not own is strictly prohibited.** Users are solely responsible for complying with applicable laws and regulations. The maintainers accept **no liability** for misuse of this project or for any resulting damage or legal consequences.
 
-本项目与中鸣（Zhongming）品牌及其关联公司、任何硬件制造商、销售商**不存在任何关联、雇佣、赞助或背书关系**，未获得上述任何主体的授权。
+本项目与任何设备厂商及其关联公司、销售商**不存在任何关联、雇佣、赞助或背书关系**，未获得上述任何主体的授权。
 
 **完整条款（中英双语）请阅读 [DISCLAIMER.md](DISCLAIMER.md)。**
 

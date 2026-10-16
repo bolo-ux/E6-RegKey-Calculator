@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 ====================================================================
- 中鸣(Zhongming) E6 控制器 注册码(E013/E014)计算器
- E6 Robot Controller Registration Key Calculator
+ E6 控制器 注册码(E013/E014)计算器
+ E6 Controller Registration Key Calculator
 ====================================================================
 
  输入: ① 机器码(设备屏幕 "您的机器码为: XXXX" 那个数)
@@ -14,7 +14,7 @@
  重要声明 (请务必阅读 DISCLAIMER.md):
    本项目仅用于安全研究与学习目的, 展示了针对 STM32 UID 绑定的
    注册校验算法的逆向分析结论。请在您自己拥有合法所有权的设备上
-   使用, 并遵守您所在地区的法律法规。作者与中鸣公司无任何关联。
+   使用, 并遵守您所在地区的法律法规。作者与任何设备厂商均无关联。
  ------------------------------------------------------------------
 
  算法来源 : 对参数设置程序(STM32F405RG 固件, 加载基址 0x080E0000)
@@ -289,7 +289,7 @@ def _fix_console():
 def main():
     _fix_console()
     ap = argparse.ArgumentParser(
-        description="中鸣E6 注册码(E013/E014)计算器 — 仅供学习研究, 见 DISCLAIMER.md",
+        description="E6 注册码(E013/E014)计算器 — 仅供学习研究, 见 DISCLAIMER.md",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="示例: python e6_keygen.py --mc 4653170")
     ap.add_argument("--mc", help="机器码(设备屏幕显示的数, 支持 'K 4653170'/'0x...')")
@@ -302,7 +302,7 @@ def main():
     a = ap.parse_args()
 
     print("=" * 62)
-    print("  中鸣 E6 注册码计算器   填机器码或UID -> 出 E013/E014")
+    print("  E6 注册码计算器   填机器码或UID -> 出 E013/E014")
     print("  仅用于学习研究, 请在自有设备上使用 — 详见 DISCLAIMER.md")
     print("=" * 62)
 
