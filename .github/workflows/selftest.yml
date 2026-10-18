@@ -36,3 +36,15 @@ jobs:
 
       - name: Batch mode
         run: python e6_keygen.py --file examples/devices.txt
+
+  web-selftest:
+    name: web build self-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check test vectors match the Python reference
+        run: python3 tests/gen_vectors.py --check
+
+      - name: Run web build regression self-test
+        run: node tests/web_selftest.js

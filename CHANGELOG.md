@@ -7,10 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-18
+
 ### Added
 
+- Web build (`index.html`): single-file, zero-dependency browser calculator with
+  machine-code / UID input, word-order auto-detection, step-by-step derivation,
+  copy helpers and an in-page self-test; works offline straight from `file://`
+- URL hash prefill (`#mc=…` / `#uid=…`) for shareable links
+- `tests/web_selftest.js` + `tests/vectors.json`: Node regression test that checks the
+  shipped browser JS bit-for-bit against the Python reference implementation
+- `tests/gen_vectors.py`: regenerates the vectors (`--check` detects drift)
 - GitHub Actions workflow (`.github/workflows/selftest.yml`) running the regression
-  self-test, all input paths and batch mode on every push / pull request
+  self-test, all input paths, batch mode and the web build on every push / pull request
 
 ## [1.0.0] - 2026-10-15
 
@@ -30,4 +39,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Algorithm verified by dual channel (instruction-level emulation + pure formula)
   on two known devices; full regression available via `--selftest`
 
+[1.1.0]: https://github.com/bolo-ux/E6-RegKey-Calculator/releases/tag/v1.1.0
 [1.0.0]: https://github.com/bolo-ux/E6-RegKey-Calculator/releases/tag/v1.0.0

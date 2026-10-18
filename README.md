@@ -11,7 +11,8 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="license MIT"></a>
   <img src="https://img.shields.io/badge/python-3.6%2B-blue?style=flat-square" alt="python 3.6+">
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square" alt="platform">
-  <img src="https://img.shields.io/badge/release-v1.0.0-orange?style=flat-square" alt="release v1.0.0">
+  <img src="https://img.shields.io/badge/release-v1.1.0-orange?style=flat-square" alt="release v1.1.0">
+  <img src="https://img.shields.io/badge/web-single%20file-1f6feb?style=flat-square" alt="web single file">
   <img src="https://img.shields.io/badge/use-research%20%2F%20education%20only-red?style=flat-square" alt="research / education only">
   <a href=".github/workflows/selftest.yml"><img src="https://github.com/bolo-ux/E6-RegKey-Calculator/actions/workflows/selftest.yml/badge.svg" alt="selftest CI"></a>
 </p>
@@ -53,9 +54,10 @@
 **特性**
 
 - 零第三方依赖，纯标准库，Python 3.6+，单文件即拷即用
+- **Web 版**：单文件 `index.html`，浏览器双击即用（纯前端、离线可用、手机也能开），无需 Python
 - 机器码 / UID 两种输入；UID 字序自动判别，容忍 `ID:` 前缀与转录杂字符
 - 批量模式：一个清单文件算多台设备
-- 内置两台已知设备回归自检（`--selftest`）
+- 内置两台已知设备回归自检（`--selftest`；Web 版页面内也有"运行自检"按钮）
 - 可选 `--firmware` 真实固件仿真交叉验证（Unicorn）
 - 完整破译方法论文档：[docs/methodology.md](docs/methodology.md)
 
@@ -118,6 +120,15 @@ python e6_keygen.py --selftest
 ```bash
 pip install -r requirements.txt
 ```
+
+### Web 版（零安装）
+
+浏览器直接打开 [`index.html`](index.html) 即可（双击本地文件也行，不联网、不装 Python）：
+
+- 机器码 / UID 双输入，字序自动识别，错误提示即时可见
+- 结果一键复制，含 `注册码.txt` 所需的「两空格」格式
+- 页面内自带回归自检（两台已知设备 × 7 种输入格式）
+- 支持带参链接：`index.html#mc=4653170`、`index.html#uid=53483643%2053303606%20003F0037`
 
 ---
 

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E6 控制器注册码计算器 · Web 版</title>
+<meta name="description" content="E6 控制器注册码（E013/E014）计算器 Web 版：输入机器码或芯片 96-bit UID，纯前端本地计算。仅用于安全研究与学习。">
+<style>
+  :root {
+    --bg: #f3f5f8;
+    --card: #ffffff;
+    --border: #d8dee4;
+    --border-soft: #e6eaef;
+    --text: #1f2328;
+    --muted: #59636e;
+    --primary: #1f6feb;
+    --primary-dark: #1a5fd0;
+    --primary-soft: #ddf1ff;
+    --ok: #1a7f37;
+    --ok-soft: #dafbe1;
+    --bad: #cf222e;
+    --bad-soft: #ffebe9;
+    --warn-bg: #fff8c5;
+    --warn-border: #d4a72c;
+    --mono: "Cascadia Code", Consolas, "SF Mono", Menlo, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei",
+          "PingFang SC", "Hiragino Sans GB", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 28px 20px 40px; }
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { font-family: var(--mono); font-size: .92em; background: #eff1f4; border: 1px solid var(--border-soft); border-radius: 4px; padding: 0 4px; }
+
+  .hero { text-align: center; padding: 6px 0 18px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 14px; }
+  .pill {
+    font-size: 12px; line-height: 1; padding: 5px 9px; border-radius: 999px;
+    border: 1px solid var(--border); background: #fff; color: var(--muted);
+  }
+  .pill.blue { background: var(--primary-soft); border-color: #b6e3ff; color: #0b5cad; }
+  .pill.green { background: var(--ok-soft); border-color: #b7e8c4; color: var(--ok); }
+  h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: .2px; }
+  .sub { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .alert {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--warn-bg); border: 1px solid var(--warn-border); border-radius: 8px;
+    padding: 12px 14px; margin: 18px 0 20px; font-size: 13.5px; color: #4d3b00;
+  }
+  .alert .ico { font-size: 16px; line-height: 1.4; }
+  .alert b { color: #3d2f00; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px; margin-bottom: 16px;
+  }
+  .tabs {
+    display: inline-flex; gap: 4px; padding: 4px; border-radius: 8px;
+    background: #eef1f5; border: 1px solid var(--border-soft); margin-bottom: 14px;
+  }
+  .tab {
+    border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 14px;
+    padding: 7px 16px; border-radius: 6px; cursor: pointer;
+  }
+  .tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 2px rgba(31,35,40,.12); font-weight: 600; }
+  .lbl { display: block; font-size: 13.5px; font-weight: 600; margin-bottom: 7px; }
+  .input {
+    width: 100%; font-family: var(--mono); font-size: 17px; color: var(--text);
+    padding: 11px 12px; border: 1px solid var(--border); border-radius: 8px;
+    background: #fbfcfd; outline: none;
+  }
+  .input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(31,111,235,.12); }
+  .hint { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; }
+  .row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+  .row.between { justify-content: space-between; margin-top: 0; }
+  .row.wrap { flex-wrap: wrap; }
+  .kbd-hint { color: var(--muted); font-size: 12px; }
+
+  .btn {
+    font: inherit; font-size: 14px; padding: 9px 18px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--border); background: #fff; color: var(--text);
+    transition: background .12s ease, border-color .12s ease;
+  }
+  .btn:hover { background: #f6f8fa; }
+  .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
+  .btn.primary:hover { background: var(--primary-dark); }
+  .btn.ghost { font-size: 13px; padding: 7px 14px; color: var(--primary); border-color: #b6d4fe; background: #f4f9ff; }
+  .btn.ghost:hover { background: #e8f3ff; }
+
+  .err {
+    margin: 14px 0 0; padding: 9px 12px; border-radius: 8px; font-size: 13.5px;
+    background: var(--bad-soft); border: 1px solid #ffc9c6; color: var(--bad);
+  }
+  .hidden { display: none !important; }
+
+  .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .res-box {
+    position: relative; border: 1px solid var(--border-soft); border-radius: 10px;
+    background: linear-gradient(180deg, #f7fbff, #fff); padding: 14px 14px 12px;
+  }
+  .res-label { font-size: 12.5px; color: var(--muted); letter-spacing: .3px; }
+  .res-num {
+    font-family: var(--mono); font-size: 40px; font-weight: 700; line-height: 1.15;
+    color: var(--primary); margin: 4px 0 6px; word-break: break-all;
+  }
+  .mini {
+    font: inherit; font-size: 12px; padding: 3px 10px; border-radius: 999px; cursor: pointer;
+    border: 1px solid #b6d4fe; background: #fff; color: var(--primary);
+  }
+  .mini:hover { background: #eef7ff; }
+  .mini.ok { border-color: #b7e8c4; background: var(--ok-soft); color: var(--ok); }
+
+  .meta {
+    margin: 14px 0 2px; padding: 10px 12px; border-radius: 8px; background: #f6f8fa;
+    border: 1px solid var(--border-soft); font-size: 13px; color: var(--muted);
+    font-family: var(--mono); word-break: break-all;
+  }
+  .meta b { color: var(--text); }
+
+  .steps { margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 12px; }
+  .steps summary { cursor: pointer; font-size: 13.5px; color: var(--primary); font-weight: 600; }
+  .steps summary:hover { text-decoration: underline; }
+  .step-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+  .step-table td { padding: 6px 8px; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+  .step-table td:first-child { width: 64px; color: var(--muted); font-family: var(--mono); white-space: nowrap; }
+  .step-table td:nth-child(2) { font-family: var(--mono); }
+  .step-table td:last-child { text-align: right; font-family: var(--mono); font-weight: 600; white-space: nowrap; }
+  .step-table tr:last-child td { border-bottom: 0; }
+
+  .st-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12.5px; }
+  .st-table th, .st-table td { padding: 6px 8px; border-bottom: 1px solid var(--border-soft); text-align: left; }
+  .st-table th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  .st-table td.mono { font-family: var(--mono); word-break: break-all; }
+  .chip {
+    display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 8px;
+    border-radius: 999px; letter-spacing: .3px;
+  }
+  .chip.pass { background: var(--ok-soft); color: var(--ok); }
+  .chip.fail { background: var(--bad-soft); color: var(--bad); }
+  .st-sum { margin-top: 10px; font-size: 13px; font-weight: 600; }
+
+  .flow {
+    font-family: var(--mono); font-size: 12px; line-height: 1.55; color: #30363d;
+    background: #f6f8fa; border: 1px solid var(--border-soft); border-radius: 8px;
+    padding: 12px; overflow-x: auto; margin: 12px 0 0;
+  }
+
+  footer { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 26px; }
+  footer p { margin: 4px 0; }
+  footer .links a { margin: 0 2px; }
+  footer b { color: var(--text); }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 18px 14px 30px; }
+    h1 { font-size: 22px; }
+    .res-num { font-size: 32px; }
+    .res-grid { grid-template-columns: 1fr; }
+    .row.between { align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="pills">
+      <span class="pill blue">纯前端 · 单文件</span>
+      <span class="pill green">零依赖 · 离线可用</span>
+      <span class="pill">v1.1.0</span>
+      <span class="pill">Windows / Linux / macOS / 手机</span>
+      <span class="pill">research &amp; education only</span>
+    </div>
+    <h1>E6 控制器注册码计算器</h1>
+    <p class="sub">E6 Controller Registration Key Calculator · Web 版 — 填机器码或 UID，本地算出 E013 / E014 注册参数</p>
+  </header>
+
+  <div class="alert" role="note">
+    <span class="ico">⚠</span>
+    <div>
+      <b>仅用于安全研究与技术学习。</b>
+      请仅在您拥有合法所有权的设备上使用，并遵守所在地区法律法规。本项目与任何硬件厂商均无任何关联。
+      使用即视为您已阅读并同意 <a href="DISCLAIMER.md">DISCLAIMER.md</a> 的全部条款。
+    </div>
+  </div>
+
+  <section class="card">
+    <div class="tabs" role="tablist" aria-label="输入方式">
+      <button class="tab active" id="tab-mc" role="tab" aria-selected="true">① 机器码</button>
+      <button class="tab" id="tab-uid" role="tab" aria-selected="false">② 芯片 UID</button>
+    </div>
+
+    <div class="pane" id="pane-mc">
+      <label class="lbl" for="input-mc">设备屏幕显示的机器码</label>
+      <input id="input-mc" class="input" type="text" autocomplete="off" spellcheck="false"
+             placeholder="例如：K 4653170 或 0x470072">
+      <p class="hint">直接粘贴屏幕上的「您的机器码为: …」也行；支持十进制、<code>K</code> 前缀与 <code>0x</code> 十六进制。</p>
+    </div>
+
+    <div class="pane hidden" id="pane-uid">
+      <label class="lbl" for="input-uid">芯片 96-bit UID（三个 32 位字）</label>
+      <input id="input-uid" class="input" type="text" autocomplete="off" spellcheck="false"
+             placeholder="例如：ID:53483643 53303606 003F0037A">
+      <p class="hint">字序自动判别（靠晶圆坐标字 <code>00XX00YY</code>），容忍 <code>ID:</code> 前缀、空格 / 逗号 / 24 位连续 hex 与末尾杂字符。</p>
+    </div>
+
+    <div class="row">
+      <button class="btn primary" id="btn-calc">计算注册码</button>
+      <span class="kbd-hint">回车即可计算</span>
+    </div>
+    <p class="err hidden" id="err"></p>
+  </section>
+
+  <section class="card result hidden" id="result" aria-live="polite">
+    <div class="res-grid">
+      <div class="res-box">
+        <div class="res-label">E013 · 密码高段</div>
+        <div class="res-num" id="r-e013">—</div>
+        <button class="mini" data-copy="e013">复制</button>
+      </div>
+      <div class="res-box">
+        <div class="res-label">E014 · 密码低段</div>
+        <div class="res-num" id="r-e014">—</div>
+        <button class="mini" data-copy="e014">复制</button>
+      </div>
+    </div>
+
+    <div class="meta" id="r-meta"></div>
+
+    <div class="row wrap">
+      <button class="btn ghost" id="btn-copy-reg">复制注册写法</button>
+      <button class="btn ghost" id="btn-copy-txt">复制 注册码.txt 格式</button>
+    </div>
+
+    <details class="steps" id="steps">
+      <summary>查看计算过程（固件流水线复现）</summary>
+      <table class="step-table"><tbody id="step-body"></tbody></table>
+      <p class="hint">中间量与固件 <code>@0x80F42A0</code> 中的指令逐条对应；浮点段与固件同样使用 IEEE754 双精度。</p>
+    </details>
+  </section>
+
+  <section class="card">
+    <div class="row between">
+      <div>
+        <div class="lbl">回归自检</div>
+        <p class="hint">两台已知设备 × 各种输入格式，逐项比对期望值。</p>
+      </div>
+      <button class="btn" id="btn-selftest">运行自检</button>
+    </div>
+    <div id="selftest-out" class="hidden"></div>
+  </section>
+
+  <section class="card">
+    <details class="steps">
+      <summary>破译原理（算法流水线）</summary>
+      <pre class="flow">┌─ 芯片 96-bit UID (STM32 系统内存 0x1FFF7A10 / 14 / 18) ─────────┐
+│  UID0 = 0x00XX00YY (晶圆坐标)    UID1    UID2                    │
+└──────────────────────────────┬───────────────────────────────────┘
+                               │ 三字异或（顺序无关）
+                               ▼
+                  机器码 = UID0 ^ UID1 ^ UID2   ← 设备屏幕显示的就是它
+                               │
+                               ▼ 浮点流水线（固件 @0x80F42A0 逆出）
+       d = (double)机器码 × 11.0 ÷ 7.0 + 11160725.0
+       n = (int64)d            R = n mod 100000000
+       v = R ÷ 10 + (R mod 10) × 10000000     ← 末位数字搬到最前
+                               │
+               ┌───────────────┴───────────────┐
+               ▼                               ▼
+    E013 = int((v ÷ 10000) / 2.5)   E014 = int((v mod 10000) / 2.5)
+            密码高段                        密码低段</pre>
+      <p class="hint">在控制器「机器设置 → 数据修改」中填入 E013 / E014 并保存确认，即完成本地注册。</p>
+    </details>
+  </section>
+
+  <footer>
+    <p><b>E6 Controller Registration Key Calculator</b> · Web 版 <span id="ver">v1.1.0</span></p>
+    <p class="hint">算法逆自固件注册函数 <code>@0x80F42A0</code>（capstone 反汇编 + Unicorn 指令级仿真双重验证）</p>
+    <p class="links">
+      <a href="README.md">README</a> · <a href="docs/methodology.md">破译方法论</a> ·
+      <a href="DISCLAIMER.md">免责声明</a> · <a href="CHANGELOG.md">Changelog</a>
+    </p>
+    <p class="hint">An independent security research project · not affiliated with any manufacturer</p>
+  </footer>
+
+</div>
+
+<script>
+/* ==CORE-BEGIN== */
+/* 核心算法 — 与 e6_keygen.py 逐行对应，由固件注册函数 @0x80F42A0 逆出 */
+var MAGIC = 11160725.0;   /* 固件 VA 0x80F4700 处的 double 常量 */
+var MOD = 100000000;      /* 固件中的 64 位常量 */
+
+function calc(machineCode) {
+  var x = machineCode;
+  var d = x * 11.0;
+  d = d / 7.0;
+  d = d + MAGIC;
+  var n = Math.trunc(d);
+  var R = n % MOD;
+  var v = Math.floor(R / 10) + (R % 10) * 10000000;
+  var e013 = Math.floor(Math.floor(v / 10000) / 2.5);
+  var e014 = Math.floor((v % 10000) / 2.5);
+  return { d: d, n: n, R: R, v: v, e013: e013, e014: e014 };
+}
+
+function uidToMachineCode(w0, w1, w2) {
+  return ((w0 ^ w1 ^ w2) >>> 0);
+}
+
+/* UID0 是晶圆坐标，形如 0x00XX00YY */
+function isWaferWord(g) {
+  return (g >>> 24) === 0 && ((g >>> 8) & 0xFF) === 0;
+}
+
+/* 接受任意粘贴格式，返回 {w0,w1,w2,order,words}；自动识别高字在前 / 低字在前 */
+function parseUid(text) {
+  var s = text || "";
+  s = s.replace(/^\s*(?:uid|id)\s*[:：]?\s*/i, "");
+  s = s.replace(/[\s,:：;；\-]+(?:uid|id)\s*[:：]?\s*/gi, " ");
+  var runs = s.match(/[0-9A-Fa-f]+/g) || [];
+  var words = [];
+  for (var i = 0; i < runs.length; i++) {
+    var r = runs[i];
+    if (r.length < 4) continue;
+    if (r.length >= 24) {
+      for (var j = 0; j + 8 <= r.length && words.length < 3; j += 8) {
+        words.push(r.slice(j, j + 8));
+      }
+      break;
+    }
+    if (r.length > 8) r = r.slice(0, 8);
+    words.push(r);
+    if (words.length === 3) break;
+  }
+  if (words.length < 3) throw new Error("UID 至少需要 3 个 32 位字（共 24 个十六进制字符）");
+  var g = [
+    parseInt(words[0], 16) >>> 0,
+    parseInt(words[1], 16) >>> 0,
+    parseInt(words[2], 16) >>> 0
+  ];
+  var wafer = [];
+  for (var k = 0; k < 3; k++) { if (isWaferWord(g[k])) wafer.push(k); }
+  var w0, w1, w2, order;
+  if (wafer.length === 1) {
+    var i0 = wafer[0];
+    if (i0 === 2) {
+      w0 = g[2]; w1 = g[1]; w2 = g[0];
+      order = "高字在前（标准格式）";
+    } else if (i0 === 0) {
+      w0 = g[0]; w1 = g[1]; w2 = g[2];
+      order = "低字在前（已自动识别）";
+    } else {
+      w0 = g[2]; w1 = g[1]; w2 = g[0];
+      order = "中间字像晶圆坐标，按标准格式处理";
+    }
+  } else {
+    w0 = g[2]; w1 = g[1]; w2 = g[0];
+    order = "无明显晶圆坐标字，按标准格式（高字在前）处理";
+  }
+  return { w0: w0, w1: w1, w2: w2, order: order, words: g };
+}
+
+/* 'K 4653170' / '4653170' / '0x470072' / '机器码:4653170' -> int */
+function parseMachineCode(text) {
+  var t = (text || "").trim();
+  if (/^\s*0x/i.test(t)) {
+    var h = t.slice(2).replace(/[^0-9A-Fa-f]/g, "");
+    if (!h) throw new Error("0x 后面没有十六进制数字");
+    return parseInt(h, 16);
+  }
+  var d = t.replace(/[^0-9]/g, "");
+  if (!d) throw new Error("没有找到数字");
+  return parseInt(d, 10);
+}
+
+function looksLikeUid(s) {
+  var cleaned = (s || "").replace(/[^0-9A-Fa-f]/g, "");
+  if (cleaned.length >= 16) return true;
+  if (/[A-Fa-f]/.test(s) && /[\s:：,，]/.test(s)) return true;
+  return false;
+}
+
+/* 输入 -> 结果（自动判定 UID / 机器码） */
+function resolveInput(text) {
+  var s = (text || "").trim();
+  if (!s) throw new Error("请输入机器码或 UID");
+  if (looksLikeUid(s)) {
+    var p = parseUid(s);
+    var mc = uidToMachineCode(p.w0, p.w1, p.w2);
+    return { mode: "uid", machineCode: mc, order: p.order, words: [p.w0, p.w1, p.w2], raw: p.words, res: calc(mc) };
+  }
+  try {
+    var mc2 = parseMachineCode(s);
+    return { mode: "mc", machineCode: mc2, order: null, words: null, raw: null, res: calc(mc2) };
+  } catch (e) {
+    var p2 = parseUid(s);
+    var mc3 = uidToMachineCode(p2.w0, p2.w1, p2.w2);
+    return { mode: "uid", machineCode: mc3, order: p2.order, words: [p2.w0, p2.w1, p2.w2], raw: p2.words, res: calc(mc3) };
+  }
+}
+/* ==CORE-END== */
+
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var tabMc = $("tab-mc"), tabUid = $("tab-uid");
+  var paneMc = $("pane-mc"), paneUid = $("pane-uid");
+  var inputMc = $("input-mc"), inputUid = $("input-uid");
+  var errBox = $("err"), result = $("result");
+  var current = null;
+
+  function setTab(which) {
+    var isMc = which === "mc";
+    tabMc.classList.toggle("active", isMc);
+    tabUid.classList.toggle("active", !isMc);
+    tabMc.setAttribute("aria-selected", isMc ? "true" : "false");
+    tabUid.setAttribute("aria-selected", isMc ? "false" : "true");
+    paneMc.classList.toggle("hidden", !isMc);
+    paneUid.classList.toggle("hidden", isMc);
+    (isMc ? inputMc : inputUid).focus();
+  }
+
+  function hex8(n) {
+    var s = (n >>> 0).toString(16).toUpperCase();
+    while (s.length < 8) s = "0" + s;
+    return s;
+  }
+
+  function showErr(msg) {
+    errBox.textContent = msg;
+    errBox.classList.remove("hidden");
+  }
+
+  function hideErr() {
+    errBox.classList.add("hidden");
+  }
+
+  function stepRow(name, expr, value) {
+    var tr = document.createElement("tr");
+    var td1 = document.createElement("td");
+    td1.textContent = name;
+    var td2 = document.createElement("td");
+    td2.textContent = expr;
+    var td3 = document.createElement("td");
+    td3.textContent = String(value);
+    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
+    return tr;
+  }
+
+  function render(out) {
+    current = out;
+    var r = out.res;
+
+    $("r-e013").textContent = String(r.e013);
+    $("r-e014").textContent = String(r.e014);
+
+    var meta;
+    if (out.mode === "uid") {
+      meta = "UID 顺序识别：" + out.order + "  ·  " +
+             "0x" + hex8(out.raw[0]) + " ^ 0x" + hex8(out.raw[1]) + " ^ 0x" + hex8(out.raw[2]) +
+             " = " + out.machineCode + " (0x" + hex8(out.machineCode) + ")";
+    } else {
+      meta = "机器码 " + out.machineCode + "  (0x" + hex8(out.machineCode) + ")";
+    }
+    $("r-meta").textContent = meta;
+
+    var body = $("step-body");
+    body.textContent = "";
+    body.appendChild(stepRow("d", out.machineCode + " × 11.0 ÷ 7.0 + 11160725.0", r.d.toFixed(4)));
+    body.appendChild(stepRow("n", "(int64)d", r.n));
+    body.appendChild(stepRow("R", "n mod 100000000", r.R));
+    body.appendChild(stepRow("v", "R ÷ 10 + (R mod 10) × 10⁷", r.v));
+    body.appendChild(stepRow("E013", "int((v ÷ 10000) / 2.5) = int(" + Math.floor(r.v / 10000) + " / 2.5)", r.e013));
+    body.appendChild(stepRow("E014", "int((v mod 10000) / 2.5) = int(" + (r.v % 10000) + " / 2.5)", r.e014));
+
+    result.classList.remove("hidden");
+  }
+
+  function calculate() {
+    hideErr();
+    var text = tabMc.classList.contains("active") ? inputMc.value : inputUid.value;
+    if (!text.trim()) {
+      text = tabMc.classList.contains("active") ? inputUid.value : inputMc.value;
+    }
+    try {
+      render(resolveInput(text));
+      result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    } catch (e) {
+      result.classList.add("hidden");
+      showErr(e && e.message ? e.message : String(e));
+    }
+  }
+
+  function fallbackCopy(t) {
+    var ta = document.createElement("textarea");
+    ta.value = t;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (e) { /* ignore */ }
+    document.body.removeChild(ta);
+  }
+
+  function flash(btn) {
+    var old = btn.getAttribute("data-label") || btn.textContent;
+    btn.setAttribute("data-label", old);
+    btn.textContent = "已复制 ✓";
+    btn.classList.add("ok");
+    setTimeout(function () {
+      btn.textContent = old;
+      btn.classList.remove("ok");
+    }, 1200);
+  }
+
+  function copyText(t, btn) {
+    var done = function () { if (btn) flash(btn); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(done, function () { fallbackCopy(t); done(); });
+    } else {
+      fallbackCopy(t);
+      done();
+    }
+  }
+
+  tabMc.addEventListener("click", function () { setTab("mc"); });
+  tabUid.addEventListener("click", function () { setTab("uid"); });
+  $("btn-calc").addEventListener("click", calculate);
+
+  [inputMc, inputUid].forEach(function (el) {
+    el.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter") { ev.preventDefault(); calculate(); }
+    });
+    el.addEventListener("input", hideErr);
+  });
+
+  document.querySelectorAll(".mini").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      if (!current) return;
+      var v = btn.getAttribute("data-copy") === "e013" ? current.res.e013 : current.res.e014;
+      copyText(String(v), btn);
+    });
+  });
+
+  $("btn-copy-reg").addEventListener("click", function () {
+    if (!current) return;
+    copyText("E013 = " + current.res.e013 + " , E014 = " + current.res.e014, this);
+  });
+
+  $("btn-copy-txt").addEventListener("click", function () {
+    if (!current) return;
+    copyText(current.res.e013 + "  " + current.res.e014, this);
+  });
+
+  /* ---------- 回归自检 ---------- */
+  var SELFTEST_CASES = [
+    { label: "设备1 · UID", input: "43485943 37303808 000E002D", mc: 1953915238, e013: 2726, e014: 3958 },
+    { label: "设备2 · UID", input: "53483643 53303606 003F0037", mc: 4653170, e013: 3673, e014: 2913 },
+    { label: "设备2 · ID 前缀 + 杂质", input: "ID:53483643 53303606 003F0037A", mc: 4653170, e013: 3673, e014: 2913 },
+    { label: "设备2 · 低字在前", input: "003F0037 53303606 53483643", mc: 4653170, e013: 3673, e014: 2913 },
+    { label: "设备2 · 24 位连续 hex", input: "5348364353303606003F0037", mc: 4653170, e013: 3673, e014: 2913 },
+    { label: "机器码 · K 前缀", input: "K 4653170", mc: 4653170, e013: 3673, e014: 2913 },
+    { label: "机器码 · 十六进制", input: "0x470072", mc: 4653170, e013: 3673, e014: 2913 }
+  ];
+
+  function runSelftest() {
+    var wrap = $("selftest-out");
+    wrap.textContent = "";
+    wrap.classList.remove("hidden");
+
+    var table = document.createElement("table");
+    table.className = "st-table";
+
+    var thead = document.createElement("thead");
+    var hr = document.createElement("tr");
+    ["用例", "输入", "机器码", "E013 / E014", "结果"].forEach(function (h) {
+      var th = document.createElement("th");
+      th.textContent = h;
+      hr.appendChild(th);
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+    var allPass = true;
+
+    SELFTEST_CASES.forEach(function (c) {
+      var got = null;
+      try { got = resolveInput(c.input); } catch (e) { got = null; }
+      var pass = !!got && got.machineCode === c.mc && got.res.e013 === c.e013 && got.res.e014 === c.e014;
+      if (!pass) allPass = false;
+
+      var tr = document.createElement("tr");
+      var t1 = document.createElement("td");
+      t1.textContent = c.label;
+      var t2 = document.createElement("td");
+      t2.className = "mono";
+      t2.textContent = c.input;
+      var t3 = document.createElement("td");
+      t3.className = "mono";
+      t3.textContent = got ? String(got.machineCode) : "—";
+      var t4 = document.createElement("td");
+      t4.className = "mono";
+      t4.textContent = got ? (got.res.e013 + " / " + got.res.e014) : "—";
+      var t5 = document.createElement("td");
+      var chip = document.createElement("span");
+      chip.className = "chip " + (pass ? "pass" : "fail");
+      chip.textContent = pass ? "PASS" : "FAIL";
+      t5.appendChild(chip);
+      tr.appendChild(t1); tr.appendChild(t2); tr.appendChild(t3); tr.appendChild(t4); tr.appendChild(t5);
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+
+    var sum = document.createElement("p");
+    sum.className = "st-sum";
+    sum.style.color = allPass ? "var(--ok)" : "var(--bad)";
+    sum.textContent = allPass ? "自检结果：全部通过 ✓（" + SELFTEST_CASES.length + "/" + SELFTEST_CASES.length + "）"
+                              : "自检结果：存在失败 ✗";
+    wrap.appendChild(sum);
+  }
+
+  $("btn-selftest").addEventListener("click", runSelftest);
+
+  /* 支持带参链接：index.html#mc=4653170 或 #uid=53483643%2053303606%20003F0037 */
+  function initFromHash() {
+    var h = location.hash ? decodeURIComponent(location.hash.replace(/^#/, "")) : "";
+    var m = h.match(/^(mc|uid)=(.+)$/);
+    if (!m) return false;
+    if (m[1] === "mc") { setTab("mc"); inputMc.value = m[2]; }
+    else { setTab("uid"); inputUid.value = m[2]; }
+    calculate();
+    return true;
+  }
+
+  if (!initFromHash()) inputMc.focus();
+})();
+</script>
+</body>
+</html>
