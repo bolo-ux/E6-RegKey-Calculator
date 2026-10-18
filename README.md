@@ -130,6 +130,8 @@ pip install -r requirements.txt
 - 页面内自带回归自检（两台已知设备 × 7 种输入格式）
 - 支持带参链接：`index.html#mc=4653170`、`index.html#uid=53483643%2053303606%20003F0037`
 
+**在线版：** <https://bolo-ux.github.io/E6-RegKey-Calculator/>（GitHub Pages，手机可直接打开）
+
 ---
 
 <a id="usage"></a>
